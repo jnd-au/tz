@@ -143,7 +143,7 @@ func main() {
 	exitQuick := flag.Bool("q", false, "exit immediately")
 	showVersion := flag.Bool("v", false, "show version")
 	when := flag.Int64("when", 0, "time in seconds since unix epoch (disables -w)")
-	doSearch := flag.Bool("list", false, "list zones by name")
+	doSearch := flag.Bool("list [filter]", false, "list zones by name")
 	military := flag.Bool("m", false, "use 24-hour time")
 	watch := flag.Bool("w", false, "watch live, set time to now every minute")
 	flag.Parse()
