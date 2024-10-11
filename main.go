@@ -99,6 +99,24 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q", "esc":
 			return m, tea.Quit
 
+		case "-":
+			m.clock.AddMinutes(-1)
+
+		case "+":
+			m.clock.AddMinutes(1)
+
+		case "0":
+			m.clock = *NewClockTime(time.Date(
+				m.clock.t.Year(),
+				m.clock.t.Month(),
+				m.clock.t.Day(),
+				m.clock.t.Hour(),
+				0,
+				0,
+				0,
+				m.clock.t.Location(),
+			))
+
 		case "left", "h":
 			m.clock.AddHours(-1)
 
