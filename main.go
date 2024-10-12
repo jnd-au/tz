@@ -79,6 +79,7 @@ type model struct {
 	isMilitary  bool
 	watch       bool
 	showHelp    bool
+	formatStyle FormatStyle
 	zoneStyle   ZoneStyle
 }
 
@@ -135,6 +136,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case ">":
 			m.clock.AddDays(7)
+
+		case "f":
+			m.formatStyle = m.formatStyle.next()
+
+		case "F":
+			m.formatStyle = m.formatStyle.previous()
 
 		case "o":
 			openInTimeAndDateDotCom(m.clock.Time())
