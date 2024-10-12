@@ -27,6 +27,36 @@ import (
 	xterm "golang.org/x/term"
 )
 
+type ZoneStyle int
+
+const (
+	AbbreviationZoneStyle ZoneStyle = iota
+	WithZOffsetZoneStyle
+	WithRelativeZoneStyle
+)
+
+func (zs ZoneStyle) next() ZoneStyle {
+	switch (zs) {
+	case AbbreviationZoneStyle:
+		return WithZOffsetZoneStyle
+	case WithZOffsetZoneStyle:
+		return WithRelativeZoneStyle
+	default:
+		return AbbreviationZoneStyle
+	}
+}
+
+func (zs ZoneStyle) previous() ZoneStyle {
+	switch (zs) {
+	case AbbreviationZoneStyle:
+		return WithRelativeZoneStyle
+	case WithRelativeZoneStyle:
+		return WithZOffsetZoneStyle
+	default:
+		return AbbreviationZoneStyle
+	}
+}
+
 // Width required to display 24 hours
 const UIWidth = 94
 const MinimumZoneHeaderPadding = 6
@@ -120,8 +150,20 @@ func (m model) View() string {
 			datetime = zone.ShortDT(m.clock.t)
 		}
 
+		var zoneString = zone.String(timeInZone)
+		switch m.zoneStyle {
+		case WithZOffsetZoneStyle:
+			utcOffset := timeInZone.Format("Z-07:00")
+			zoneString = fmt.Sprintf("[%s] %s", utcOffset, zoneString)
+		case WithRelativeZoneStyle:
+			_, otherOffset := timeInZone.Zone()
+			_, localOffset := m.clock.t.Zone()
+			relativeOffset := m.clock.t.In(time.FixedZone("", otherOffset - localOffset)).Format("-07:00")
+			zoneString = fmt.Sprintf("[%s] %s", relativeOffset, zoneString)
+		default:
+		}
+
 		clockString := zone.ClockEmoji(m.clock.t)
-		zoneString := zone.String(m.clock.t)
 		usedZoneHeaderWidth := termenv.String(clockString + zoneString + datetime).Width()
 		unusedZoneHeaderWidth := max(0, zoneHeaderWidth - usedZoneHeaderWidth - MinimumZoneHeaderPadding)
 		rightAlignmentSpace := strings.Repeat(" ", unusedZoneHeaderWidth)
@@ -143,7 +185,7 @@ func status(m model) string {
 	if m.showHelp {
 		text = []string{
 			"?: help, -/+/0: minutes, h/l: hours, H/L: days, </>: weeks, t: go to now",
-			"q: quit, d: toggle dates, o: open in web",
+			"q: quit, d: toggle dates, z: toggle zone offsets, o: open in web",
 		}
 	} else {
 		text = []string{

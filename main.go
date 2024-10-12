@@ -79,6 +79,7 @@ type model struct {
 	isMilitary  bool
 	watch       bool
 	showHelp    bool
+	zoneStyle   ZoneStyle
 }
 
 func (m model) Init() tea.Cmd {
@@ -146,6 +147,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "d":
 			m.showDates = !m.showDates
+
+		case "z":
+			m.zoneStyle = m.zoneStyle.next()
+
+		case "Z":
+			m.zoneStyle = m.zoneStyle.previous()
 		}
 
 	case tickMsg:
@@ -193,6 +200,7 @@ func main() {
 		isMilitary: *military,
 		watch:      *watch,
 		showHelp:   false,
+		zoneStyle:  AbbreviationZoneStyle,
 	}
 
 	if *when != 0 {
