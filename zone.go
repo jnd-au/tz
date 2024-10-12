@@ -16,7 +16,10 @@
  **/
 package main
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 var name, _ = time.Now().Zone()
 var DefaultZones = []*Zone{
@@ -53,8 +56,8 @@ type Zone struct {
 	Name   string // Preferred name (user-provided, or else DbName by default)
 }
 
-func (z Zone) String() string {
-	return z.Name
+func (z Zone) String(t time.Time) string {
+	return fmt.Sprintf("(%s) %s", z.Abbreviation(t), z.Name)
 }
 
 // Abbreviated short name for the zone (e.g. acronym "ABC" if available, or else a number like "-3").
