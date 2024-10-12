@@ -50,6 +50,7 @@ func LoadConfig(tzConfigs []string) (*Config, error) {
 	now := time.Now()
 	localZoneName, _ := now.Zone()
 	zones[0] = &Zone{
+		Loc:    now.Location(),
 		Name:   fmt.Sprintf("(%s) Local", localZoneName),
 		DbName: localZoneName,
 	}
@@ -86,6 +87,7 @@ func SetupZone(now time.Time, zoneConf string) (*Zone, error) {
 	then := now.In(loc)
 	shortName, _ := then.Zone()
 	return &Zone{
+		Loc:    loc,
 		DbName: loc.String(),
 		Name:   fmt.Sprintf("(%s) %s", shortName, name),
 	}, nil

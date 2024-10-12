@@ -48,6 +48,7 @@ var EmojiClocks = map[int]string{
 
 // Zone stores the name of a time zone
 type Zone struct {
+	Loc    *time.Location
 	DbName string // Name in tzdata
 	Name   string // Short name
 }
@@ -75,11 +76,7 @@ func (z Zone) ShortMT(t time.Time) string {
 func (z Zone) currentTime(t time.Time) time.Time {
 	zName, _ := t.Zone()
 	if z.DbName != zName {
-		loc, err := time.LoadLocation(z.DbName)
-		if err != nil {
-			return t
-		}
-		return t.In(loc)
+		return t.In(z.Loc)
 	}
 	return t
 }
