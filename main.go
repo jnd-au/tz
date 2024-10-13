@@ -74,6 +74,7 @@ func openInTimeAndDateDotCom(t time.Time) error {
 type model struct {
 	zones       []*Zone
 	clock       Clock
+	highlighted int // 0 == none, else row number indexed from 1
 	showDates   bool
 	interactive bool
 	isMilitary  bool
@@ -118,6 +119,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				0,
 				m.clock.t.Location(),
 			))
+
+		case "up", "k":
+			modulo := len(m.zones) + 1
+			m.highlighted = (m.highlighted - 1 + modulo) % modulo
+
+		case "down", "j":
+			modulo := len(m.zones) + 1
+			m.highlighted = (m.highlighted + 1) % modulo
 
 		case "left", "h":
 			m.clock.AddHours(-1)

@@ -123,13 +123,14 @@ func (m model) View() string {
 	cursorColumn := int(midnightOffset / time.Hour)
 
 	// Show hours for each zone
-	for _, zone := range m.zones {
+	for i, zone := range m.zones {
 		hours := strings.Builder{}
 		dates := strings.Builder{}
 		timeInZone := zone.currentTime(m.clock.t)
 		midnightInZone := timeInZone.Add(-midnightOffset)
 		wasDST := midnightInZone.Add(-time.Hour).IsDST()
 		previousHour := midnightInZone.Add(-time.Hour).Hour()
+		highlighted := i == (m.highlighted - 1)
 
 		dateChanged := false
 		for column := 0; column < 24; column++ {
@@ -215,7 +216,14 @@ func (m model) View() string {
 		rightAlignmentSpace := strings.Repeat(" ", unusedZoneHeaderWidth)
 		zoneHeader := fmt.Sprintf("%s %s %s%s", clockString, normalTextStyle(zoneString), rightAlignmentSpace, dateTimeStyle(datetime))
 
-		s += fmt.Sprintf("  %s\n  %s\n  %s\n", zoneHeader, hours.String(), dates.String())
+		marker := "  "
+		if highlighted {
+			marker = termenv.String(">>").Reverse().String()
+		}
+		lines := []string{zoneHeader, hours.String(), dates.String()}
+		for _, line := range lines {
+			s += fmt.Sprintf("%s%s\n", marker, line)
+		}
 	}
 
 	if m.interactive {
@@ -230,7 +238,7 @@ func status(m model) string {
 
 	if m.showHelp {
 		text = []string{
-			"?: help, -/+/0: minutes, h/l: hours, H/L: days, </>: weeks, t: go to now",
+			"?: help, -/+/0: minutes, h/l: hours, H/L: days, </>: weeks, t: go to now, j/k: highlight",
 			"q: quit, d: toggle dates, f: toggle formats, z: toggle zone offsets, o: open in web",
 		}
 	} else {
